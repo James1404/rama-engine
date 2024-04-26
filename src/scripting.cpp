@@ -1,8 +1,7 @@
-#include <scripting.hpp>
+#include <rama/scripting.hpp>
 
-#include <engine.hpp>
-#include <physics3d.hpp>
-#include <physics2d.hpp>
+#include <rama/engine.hpp>
+#include <rama/physics3d.hpp>
 
 #include <imgui.h>
 #include <backends/imgui_impl_sdl3.h>
@@ -542,7 +541,6 @@ namespace scripting {
         lua_state.require("imgui", sol::c_call<decltype(&libImGui), &libImGui>, false);
 
         physics3d::RegisterLuaModule(lua_state);
-        physics2d::RegisterLuaModule(lua_state);
     }
 }
 

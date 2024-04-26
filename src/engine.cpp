@@ -1,15 +1,11 @@
-#include "engine.hpp"
-
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-#endif
+#include <rama/engine.hpp>
 
 #include <iostream>
 #include <fstream>
 #include <chrono>
 #include <algorithm>
 
-#include <scripting.hpp>
+#include <rama/scripting.hpp>
 
 #include <SDL3/SDL_main.h>
 
@@ -17,6 +13,7 @@
 #include "stb_image.h"
 
 #ifdef __EMSCRIPTEN__
+#include <emscripten.h>
 // For emscripten, instead of using glad we use its built-in support for OpenGL:
 #include <GL/gl.h>
 #else
@@ -126,10 +123,10 @@ Texture Texture::make(string path) {
     glGenTextures(1, &result.GLid);
     glBindTexture(GL_TEXTURE_2D, result.GLid);
 
-    glTextureParameteri(result.GLid, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(result.GLid, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTextureParameteri(result.GLid, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTextureParameteri(result.GLid, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(result.GLid, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(result.GLid, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(result.GLid, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(result.GLid, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     glTexImage2D(GL_TEXTURE_2D, 0, format, w, h, 0 , format, GL_UNSIGNED_BYTE, result.data);
 
@@ -725,26 +722,6 @@ namespace engine {
     }
 } // namespace engine
 
-void GLAPIENTRY GLMessageCallback(
-    GLenum source,
-    GLenum type,
-    GLuint id,
-    GLenum severity,
-    GLsizei length,
-    const GLchar* message,
-    const void* userParam)
-{
-    switch(severity) {
-        case GL_DEBUG_SEVERITY_HIGH:
-        case GL_DEBUG_SEVERITY_MEDIUM:
-        case GL_DEBUG_SEVERITY_LOW:
-        {
-            engine::error("OpenGL: [type = {}, severity = {}]: {}", type, severity, message);
-            exit(-1);
-        } break;
-    }
-}
-
 int main(int argc, char** argv) {
 	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
 		std::cout << "SDL_Error: " << SDL_GetError() << "\n";
@@ -777,9 +754,6 @@ int main(int argc, char** argv) {
         std::cout << "GLAD_Error" << "Failed to load OpenGL" << std::endl;
         return 1;
     }
-
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(GLMessageCallback,0);
 
     glEnable(GL_DEPTH_TEST);  
     glDepthFunc(GL_LESS);

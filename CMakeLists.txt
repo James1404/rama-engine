@@ -29,6 +29,9 @@ add_subdirectory(${rama_CURRENT_DIR}/deps/JoltPhysics/Build)
 
 add_subdirectory(${rama_CURRENT_DIR}/deps/tinygltf)
 
+set(ASSIMP_WARNINGS_AS_ERRORS false)
+add_subdirectory(${rama_CURRENT_DIR}/deps/assimp)
+
 include(FindLua)
 
 add_subdirectory(${rama_CURRENT_DIR}/deps/json)
@@ -42,6 +45,7 @@ target_link_libraries(rama PUBLIC
   sol2
   Jolt
   tinygltf
+  assimp
   ${LUA_LIBRARIES}
 )
 	
@@ -57,22 +61,17 @@ file(GLOB rama_src
 	${rama_CURRENT_DIR}/src/*.c
 )
 
-file(GLOB rama_inc
-	${rama_CURRENT_DIR}/src/*.h
-	${rama_CURRENT_DIR}/src/*.hpp
-)
-
 target_include_directories(rama PUBLIC
-  ${rama_CURRENT_DIR}/src
-  ${rama_CURRENT_DIR}/deps/glad/include
-  ${rama_CURRENT_DIR}/deps/stb
-  ${rama_CURRENT_DIR}/deps/imgui
-  ${LUA_INCLUDE_DIR}
+    ${rama_CURRENT_DIR}/include
+    ${rama_CURRENT_DIR}/deps/glad/include
+    ${rama_CURRENT_DIR}/deps/stb
+    ${rama_CURRENT_DIR}/deps/imgui
+    ${LUA_INCLUDE_DIR}
 )
 
 target_sources(rama PRIVATE
-  ${rama_src}
-  ${rama_CURRENT_DIR}/deps/glad/src/glad.c
+    ${rama_src}
+    ${rama_CURRENT_DIR}/deps/glad/src/glad.c
 
-  ${imgui_src}
+    ${imgui_src}
 )

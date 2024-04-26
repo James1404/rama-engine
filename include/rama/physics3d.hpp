@@ -1,7 +1,7 @@
 #pragma once
 
-#include <types.hpp>
-#include <scripting.hpp>
+#include <rama/types.hpp>
+#include <rama/scripting.hpp>
 
 #include <Jolt/Jolt.h>
 #include <Jolt/RegisterTypes.h>
