@@ -12,31 +12,20 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
-// For emscripten, instead of using glad we use its built-in support for OpenGL:
-#include <GL/gl.h>
-#else
-#include <glad/glad.h>
-#endif
-
 #include <cassert>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include <imgui.h>
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <misc/cpp/imgui_stdlib.h>
 
-#include <nlohmann/json.hpp>
-
 namespace { // Local Globals
     string glslVersion = "#version 460\n";
 
-    Vec3f clearcolor(0.0, 0.1, 0.5);
+    Vec3f clearcolor(0.0, 0.0, 0.0);
 
     bool running = true;
 
@@ -92,6 +81,21 @@ namespace { // Local Globals
 
         return success;
     }
+}
+
+LineInstancing LineInstancing::make() {
+    LineInstancing result;
+
+    return result;
+}
+
+void LineInstancing::destroy() {
+}
+
+void LineInstancing::add(Vec3f p1, Vec3f p2, Vec3f colour, f32 thickness) {
+}
+
+void LineInstancing::draw(Mat4 perspective, Mat4 view) {
 }
 
 Texture Texture::make(string path) {
@@ -162,9 +166,6 @@ Shader Shader::load(string path) {
         assert(fShaderCode.empty());
         assert(vShaderCode.empty());
 
-        fShaderCode += glslVersion;
-        vShaderCode += glslVersion;
-
         string line;
         while (std::getline(ifs, line))
         {
@@ -198,7 +199,7 @@ Shader Shader::load(string path) {
         std::cout << "Failed to open shader file: " << path << '\n';
     }
 
-    return Shader::make(vShaderCode, fShaderCode);
+    return Shader::make_with_version(vShaderCode, fShaderCode);
 }
 
 Shader Shader::make(string vertex_src, string fragment_src) {
@@ -228,6 +229,13 @@ Shader Shader::make(string vertex_src, string fragment_src) {
     Shader result;
     result.program = program;
     return result;
+}
+
+Shader Shader::make_with_version(string vertex_src, string fragment_src) {
+    string version = engine::get_GLSLVersion();
+    vertex_src.insert(0, version);
+    fragment_src.insert(0, version);
+    return Shader::make(vertex_src, fragment_src);
 }
 
 void Shader::destroy() {
@@ -589,6 +597,10 @@ void Framebuffer::UpdateSize(f32 w, f32 h) {
     unbind();
 }
 
+namespace {
+    LineInstancing lineinstancing;
+}
+
 namespace engine {
     f32 DeltaTime() {
         return dt;
@@ -715,6 +727,10 @@ namespace engine {
 
     string get_GLSLVersion() {
         return glslVersion;
+    }
+
+    Vec2f get_game_size() {
+        return Vec2f(game_width, game_height);
     }
 
     void set_clear_color(f32 x, f32 y, f32 z) {
