@@ -29,3 +29,6 @@
 	path = deps/imgui
 	url = git@github.com:ocornut/imgui.git
 	branch = docking
+[submodule "deps/freetype"]
+	path = deps/freetype
+	url = https://gitlab.freedesktop.org/freetype/freetype.git

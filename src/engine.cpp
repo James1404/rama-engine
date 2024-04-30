@@ -50,6 +50,8 @@ namespace { // Local Globals
 
     bool mouselock = false;
 
+    bool keyboard_block = false, mouse_block = false;
+
     f32 dt = 0.0;
 
     string exe_path = "";
@@ -84,18 +86,87 @@ namespace { // Local Globals
 }
 
 LineInstancing LineInstancing::make() {
+    string vtx_shader = R"(
+        layout(std460, binding = 0) buffer TVertex
+        {
+            vec4 vertex[];
+        };
+
+        uniform mat4 perspective;
+        uniform mat4 view;
+
+        uniform float thickness;
+        uniform vec2 resolution;
+
+        void main() {
+            int line_i = gl_VertexID / 6;
+            int tri_i  = gl_VertexID % 6;
+
+            vec4 va[4];
+            for (int i=0; i<4; ++i)
+            {
+                va[i] = perspective * view * vertex[line_i+i];
+                va[i].xyz /= va[i].w;
+                va[i].xy = (va[i].xy + 1.0) * 0.5 * resolution;
+            }
+
+            vec2 v_line  = normalize(va[2].xy - va[1].xy);
+            vec2 nv_line = vec2(-v_line.y, v_line.x);
+
+            vec4 pos;
+            if (tri_i == 0 || tri_i == 1 || tri_i == 3)
+            {
+                vec2 v_pred  = normalize(va[1].xy - va[0].xy);
+                vec2 v_miter = normalize(nv_line + vec2(-v_pred.y, v_pred.x));
+
+                pos = va[1];
+                pos.xy += v_miter * thickness * (tri_i == 1 ? -0.5 : 0.5) / dot(v_miter, nv_line);
+            }
+            else
+            {
+                vec2 v_succ  = normalize(va[3].xy - va[2].xy);
+                vec2 v_miter = normalize(nv_line + vec2(-v_succ.y, v_succ.x));
+
+                pos = va[2];
+                pos.xy += v_miter * thickness * (tri_i == 5 ? 0.5 : -0.5) / dot(v_miter, nv_line);
+            }
+
+            pos.xy = pos.xy / resolution * 2.0 - 1.0;
+            pos.xyz *= pos.w;
+            gl_Position = pos;
+        }
+    )";
+
+    string frg_shader = R"(
+        out vec4 fragColor;
+
+        void main() {
+            fragColor = vec4(0.2, 1.0, 0.3, 1.0);
+        }
+    )";
+
     LineInstancing result;
+
+    result.shader = Shader::make_with_version(vtx_shader, frg_shader);
+
+    glGenVertexArrays(1, &result.vao);
+    glBindVertexArray(result.vao);
+    glBindVertexArray(0);
 
     return result;
 }
 
 void LineInstancing::destroy() {
+    glDeleteVertexArrays(1, &vao);
+
+    shader.destroy();
 }
 
 void LineInstancing::add(Vec3f p1, Vec3f p2, Vec3f colour, f32 thickness) {
 }
 
 void LineInstancing::draw(Mat4 perspective, Mat4 view) {
+
 }
 
 Texture Texture::make(string path) {
@@ -529,8 +600,10 @@ Mat4 Camera2D::GetPerspective() {
     return glm::ortho(0.0f, (f32)game_width, 0.0f, (f32)game_height, 0.0f, 1000.0f);
 }
 
-Framebuffer Framebuffer::make() {
+Framebuffer Framebuffer::make(bool depth_test = false) {
     Framebuffer result;
+
+    result.depth_test = depth_test;
 
     glGenFramebuffers(1, &result.fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, result.fbo);
@@ -574,7 +647,13 @@ void Framebuffer::unbind() {
 void Framebuffer::clear(f32 r, f32 b, f32 g) {
     glClearColor(r, g, b, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glEnable(GL_DEPTH_TEST);
+
+    if(depth_test) {
+        glEnable(GL_DEPTH_TEST);
+    }
+    else {
+        glDisable(GL_DEPTH_TEST);
+    }
 }
 
 void Framebuffer::UpdateSize(f32 w, f32 h) {
@@ -632,14 +711,17 @@ namespace engine {
 	}
 
     bool key_pressed(SDL_Scancode key) {
+        if(keyboard_block) return false;
         return keyboard[key] && !prevkeyboard[key];
     }
 
     bool key_released(SDL_Scancode key) {
+        if(keyboard_block) return false;
         return !keyboard[key] && prevkeyboard[key];
     }
 
     bool key_held(SDL_Scancode key) {
+        if(keyboard_block) return false;
         return keyboard[key];
     }
 
@@ -652,6 +734,8 @@ namespace engine {
     }
 
     bool mouse_pressed(MouseButton button) {
+        if(mouse_block) return false;
+
         switch(button) {
             case MouseButton::left: {
                 return (mousestate & SDL_BUTTON_LMASK) != 0 &&
@@ -671,6 +755,8 @@ namespace engine {
     }
 
     bool mouse_released(MouseButton button) {
+        if(mouse_block) return false;
+
         switch(button) {
             case MouseButton::left: {
                 return !(mousestate & SDL_BUTTON_LMASK) &&
@@ -690,6 +776,8 @@ namespace engine {
     }
 
     bool mouse_held(MouseButton button) {
+        if(mouse_block) return false;
+
         switch(button) {
             case MouseButton::left: {
                 return (mousestate & SDL_BUTTON_LMASK) != 0;
@@ -731,6 +819,9 @@ namespace engine {
 
     Vec2f get_game_size() {
         return Vec2f(game_width, game_height);
+    }
+
+    void set_framebuffer(Framebuffer& frame) {
     }
 
     void set_clear_color(f32 x, f32 y, f32 z) {
@@ -801,7 +892,7 @@ int main(int argc, char** argv) {
     std::chrono::high_resolution_clock clock;
     auto current = clock.now(), previous = clock.now();
 
-    auto framebuffer = Framebuffer::make();
+    auto framebuffer = Framebuffer::make(true);
 
     scripting::setup();
 
@@ -869,6 +960,9 @@ int main(int argc, char** argv) {
 
         ImGui::Begin("Game View");
 
+        mouse_block = !ImGui::IsWindowFocused();
+        keyboard_block = !ImGui::IsWindowFocused();
+
         game_width = ImGui::GetContentRegionAvail().x;
         game_height = ImGui::GetContentRegionAvail().y;
 
@@ -899,7 +993,7 @@ int main(int argc, char** argv) {
 		glClearColor(clearcolor.x, clearcolor.y, clearcolor.z, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData()); // this is where the framebufer craps the bed
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		SDL_GL_SwapWindow(window);
 
         prevkeyboard = (u8*)memcpy(prevkeyboard, keyboard, keyboardsize*sizeof(*keyboard));

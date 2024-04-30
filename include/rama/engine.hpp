@@ -149,9 +149,12 @@ public:
 };
 
 class Framebuffer {
+private:
 public:
     u32 fbo, rbo, albedo;
-    static Framebuffer make();
+    bool depth_test;
+
+    static Framebuffer make(bool depth_test);
     void destroy();
 
     void bind();
@@ -164,57 +167,12 @@ public:
 
 class LineInstancing {
 public:
-    struct Line {
-        Vec3f p1, p2, colour;
-        f32 thickness;
-    };
+    ArrayList<Vec4f> points;
 private:
-    string vtx_shader = R"(
-        uniform mat4 perspective;
-        uniform mat4 view;
-
-        layout(location = 0) in vec3 a_vertex;
-        layout(location = 1) in vec3 a_p1;
-        layout(location = 2) in vec3 a_p2;
-        layout(location = 3) in vec3 a_colour;
-        layout(location = 4) in f32 a_thickness;
-
-        out vec3 o_colour;
-
-        void main() {
-            gl_Position = perspective * view * a_model * vec4(a_vertex, 1.0);
-
-            o_colour = a_colour;
-        }
-    )";
-
-    string frg_shader = R"(
-        in vec3 color;
-
-        out vec4 frag;
-
-        void main() {
-            frag = vec4(colour, 1.0);
-        }
-    )";
-
-    u32 vao, vbo, ebo, instance;
+    u32 vao;
     Shader shader;
 
-    ArrayList<Vec3f> vertices = {
-        Vec3f(0.0,  0.5, -0.5),
-        Vec3f( 0.5, -0.5, -0.5),
-        Vec3f(-0.5, -0.5, -0.5),
-    };
-
-    ArrayList<u32> indices = {
-        0, 1, 2,
-    };
-
-    static_assert(std::is_standard_layout<Line>::value, "Line must have standard layout");
-    static_assert(std::is_trivially_copyable<Line>::value, "Line must be trivially copyable");
-
-    Stack<Line> stack;
+    u32 count = 0;
 public:
     static LineInstancing make();
     void destroy();
@@ -262,9 +220,8 @@ namespace engine {
 
     Vec2f get_game_size();
 
-    void draw_line(Vec3f p1, Vec3f p2, Vec3f colour, f32 thickness);
-
-    void set_camera(Camera* camera);
+    void set_framebuffer(Framebuffer& frame);
+    void set_clear_color(f32 x, f32 y, f32 z);
 
     template<typename... Args>
     void info(spdlog::format_string_t<Args...> fmt, Args &&...args) {
@@ -280,8 +237,6 @@ namespace engine {
     void error(spdlog::format_string_t<Args...> fmt, Args &&...args) {
         spdlog::error(fmt, std::forward<Args>(args)...);
     }
-
-    void set_clear_color(f32 x, f32 y, f32 z);
 } // namespace engine
 
 //

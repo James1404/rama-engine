@@ -36,6 +36,8 @@ include(FindLua)
 
 add_subdirectory(${rama_CURRENT_DIR}/deps/json)
 
+add_subdirectory(${rama_CURRENT_DIR}/deps/freetype)
+
 target_link_libraries(rama PUBLIC
   SDL3::SDL3
   spdlog::spdlog
@@ -47,6 +49,7 @@ target_link_libraries(rama PUBLIC
   tinygltf
   assimp
   ${LUA_LIBRARIES}
+  freetype
 )
 	
 file(GLOB imgui_src
