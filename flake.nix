@@ -1,5 +1,5 @@
 {
-  description = "Boids simulation";
+  description = "Rama engine";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
@@ -22,12 +22,11 @@
               cmake
 
               sdl3
-              sdl3-ttf
-              sdl3-image
-
               assimp
               freetype
               lua
+              sol2
+              spdlog
             ];
           });
         }
