@@ -102,6 +102,7 @@ write_basic_package_version_file(
 )
 
 install(DIRECTORY include/ DESTINATION include)
+install(DIRECTORY deps/glad/include/ DESTINATION include)
 
 install(TARGETS rama
   EXPORT rama-engineTargets
