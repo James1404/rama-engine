@@ -60,11 +60,8 @@ clangStdenv.mkDerivation (finalAttrs: rec {
   '';
 
   installPhase = ''
-    runHook preInstall
-    mkdir -p $out/lib
-    cp librama.a $out/lib/
-    mkdir -p $out/include
-    cp -r ${src}/include $out/include
+    runHook preInstal l
+    cmake --install . --prefix $out --verbose
     runHook postInstall
   '';
 

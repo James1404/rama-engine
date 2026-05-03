@@ -68,12 +68,14 @@ file(GLOB rama_src
 )
 
 target_include_directories(rama PUBLIC
-    ${rama_CURRENT_DIR}/include
-    ${rama_CURRENT_DIR}/deps/glad/include
-    ${rama_CURRENT_DIR}/deps/imgui
-    ${STB_INCLUDE_DIRS}
-    ${JoltPhysics_SOURCE_DIR}/..
-    ${LUA_INCLUDE_DIR}
+    $<INSTALL_INTERFACE:include>
+
+    $<BUILD_INTERFACE:${rama_CURRENT_DIR}/include>
+    $<BUILD_INTERFACE:${rama_CURRENT_DIR}/deps/glad/include>
+    $<BUILD_INTERFACE:${rama_CURRENT_DIR}/deps/imgui>
+    $<BUILD_INTERFACE:${STB_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${JoltPhysics_SOURCE_DIR}/..>
+    $<BUILD_INTERFACE:${LUA_INCLUDE_DIR}>
 )
 
 target_sources(rama PRIVATE
@@ -82,3 +84,42 @@ target_sources(rama PRIVATE
 
     ${imgui_src}
 )
+
+include(CMakePackageConfigHelpers)
+
+# Generate the config file
+configure_package_config_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/rama-engineConfig.cmake
+  INSTALL_DESTINATION lib/cmake/rama-engine
+)
+
+# Generate the version file
+write_basic_package_version_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/rama-engineConfigVersion.cmake
+  VERSION ${PROJECT_VERSION}
+  COMPATIBILITY AnyNewerVersion
+)
+
+install(DIRECTORY include/ DESTINATION include)
+
+install(TARGETS rama
+  EXPORT rama-engineTargets
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+install(EXPORT rama-engineTargets
+  FILE rama-engineTargets.cmake
+  NAMESPACE rama-engine::
+  DESTINATION lib/cmake/rama-engine
+)
+
+# Install the config and version files
+install(FILES
+  ${CMAKE_CURRENT_BINARY_DIR}/rama-engineConfig.cmake
+  ${CMAKE_CURRENT_BINARY_DIR}/rama-engineConfigVersion.cmake
+  DESTINATION lib/cmake/rama-engine
+)
+
