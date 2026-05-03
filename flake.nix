@@ -6,7 +6,7 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, flake-utils, nixpkgs, ... }:
+  outputs = { self, flake-utils, nixpkgs, ... }@inputs:
     flake-utils.lib.eachDefaultSystem
       (system:
         let
@@ -29,6 +29,8 @@
               spdlog
             ];
           });
+
+          packages.default = pkgs.callPackage ./default.nix {};
         }
       );
 }
