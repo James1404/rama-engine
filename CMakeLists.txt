@@ -12,7 +12,10 @@ add_library(rama)
 
 set(rama_CURRENT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_subdirectory(${rama_CURRENT_DIR}/deps/SDL)
+find_package(SDL3 REQUIRED CONFIG REQUIRED COMPONENTS SDL3-shared)
+find_package(assimp REQUIRED CONFIG)
+find_package(Freetype)
+
 add_subdirectory(${rama_CURRENT_DIR}/deps/spdlog)
 add_subdirectory(${rama_CURRENT_DIR}/deps/glm)
 add_subdirectory(${rama_CURRENT_DIR}/deps/fmt)
@@ -25,18 +28,19 @@ set(INTERPROCEDURAL_OPTIMIZATION ON)
 set(FLOATING_POINT_EXCEPTIONS_ENABLED OFF)
 set(OBJECT_LAYER_BITS 16)
 
-add_subdirectory(${rama_CURRENT_DIR}/deps/JoltPhysics/Build)
+FetchContent_Declare(
+        JoltPhysics
+        GIT_REPOSITORY "https://github.com/jrouwe/JoltPhysics"
+        GIT_TAG "v5.5.0"
+		SOURCE_SUBDIR "Build"
+)
+FetchContent_MakeAvailable(JoltPhysics)
 
 add_subdirectory(${rama_CURRENT_DIR}/deps/tinygltf)
-
-set(ASSIMP_WARNINGS_AS_ERRORS false)
-add_subdirectory(${rama_CURRENT_DIR}/deps/assimp)
 
 include(FindLua)
 
 add_subdirectory(${rama_CURRENT_DIR}/deps/json)
-
-add_subdirectory(${rama_CURRENT_DIR}/deps/freetype)
 
 target_link_libraries(rama PUBLIC
   SDL3::SDL3
@@ -49,7 +53,7 @@ target_link_libraries(rama PUBLIC
   tinygltf
   assimp
   ${LUA_LIBRARIES}
-  freetype
+  Freetype::Freetype
 )
 	
 file(GLOB imgui_src
@@ -69,6 +73,7 @@ target_include_directories(rama PUBLIC
     ${rama_CURRENT_DIR}/deps/glad/include
     ${rama_CURRENT_DIR}/deps/stb
     ${rama_CURRENT_DIR}/deps/imgui
+    ${JoltPhysics_SOURCE_DIR}/..
     ${LUA_INCLUDE_DIR}
 )
 
