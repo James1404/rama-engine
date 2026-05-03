@@ -36,14 +36,11 @@ clangStdenv.mkDerivation (finalAttrs: rec {
   src = ./.;
 
   nativeBuildInputs = [ cmake pkg-config ];
-  buildInputs = [
+  propagatedBuildInputs = [
     assimp
     freetype
     lua
     tinygltf
-  ];
-
-  propagatedBuildInputs = [
     sdl3
     glm
     spdlog
