@@ -23,6 +23,7 @@ find_package(fmt REQUIRED)
 find_package(glm REQUIRED)
 find_package(TinyGLTF)
 find_package(nlohmann_json REQUIRED)
+find_package(Jolt REQUIRED)
 
 pkg_check_modules(STB REQUIRED stb)
 
@@ -37,15 +38,6 @@ set(CROSS_PLATFORM_DETERMINISTIC OFF)
 set(INTERPROCEDURAL_OPTIMIZATION ON)
 set(FLOATING_POINT_EXCEPTIONS_ENABLED OFF)
 set(OBJECT_LAYER_BITS 16)
-
-include(FetchContent)
-FetchContent_Declare(
-        JoltPhysics
-        GIT_REPOSITORY "https://github.com/jrouwe/JoltPhysics"
-        GIT_TAG "v5.5.0"
-		SOURCE_SUBDIR "Build"
-)
-FetchContent_MakeAvailable(JoltPhysics)
 
 include(FindLua)
 
