@@ -1,6 +1,3 @@
-[submodule "deps/SDL"]
-	path = deps/SDL
-	url = git@github.com:libsdl-org/SDL.git
 [submodule "deps/fmt"]
 	path = deps/fmt
 	url = git@github.com:fmtlib/fmt.git
@@ -10,9 +7,6 @@
 [submodule "deps/json"]
 	path = deps/json
 	url = git@github.com:nlohmann/json.git
-[submodule "deps/assimp"]
-	path = deps/assimp
-	url = git@github.com:assimp/assimp.git
 [submodule "deps/JoltPhysics"]
 	path = deps/JoltPhysics
 	url = git@github.com:jrouwe/JoltPhysics.git
