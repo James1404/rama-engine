@@ -47,12 +47,14 @@ target_link_libraries(rama PUBLIC
   glm::glm
   nlohmann_json::nlohmann_json
   fmt::fmt
-  sol2
   Jolt
-  TinyGLTF
   assimp
   ${LUA_LIBRARIES}
   Freetype::Freetype
+
+  PRIVATE
+  sol2
+  TinyGLTF
 )
 	
 file(GLOB imgui_src
