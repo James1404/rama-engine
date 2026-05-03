@@ -52,10 +52,6 @@ PUBLIC
   assimp
   ${LUA_LIBRARIES}
   Freetype::Freetype
-
-PRIVATE
-  sol2
-  TinyGLTF
 )
 	
 file(GLOB imgui_src
@@ -79,6 +75,9 @@ target_include_directories(rama PUBLIC
     $<BUILD_INTERFACE:${STB_INCLUDE_DIRS}>
     $<BUILD_INTERFACE:${JoltPhysics_SOURCE_DIR}/..>
     $<BUILD_INTERFACE:${LUA_INCLUDE_DIR}>
+
+    $<BUILD_INTERFACE:${sol2_INCLUDE_DIRS}>
+    $<BUILD_INTERFACE:${TinyGLTF_INCLUDE_DIRS}>
 )
 
 target_sources(rama PRIVATE
