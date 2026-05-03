@@ -27,6 +27,12 @@
               lua
               sol2
               spdlog
+              glm
+              fmt
+              imgui
+              tinygltf
+              nlohmann_json
+              stb
             ];
           });
 
