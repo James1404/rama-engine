@@ -42,13 +42,15 @@ clangStdenv.mkDerivation (finalAttrs: rec {
     freetype
     lua
     sol2
-    spdlog
-    glm
-    fmt
-    imgui
     tinygltf
-    nlohmann_json
     jolt-physics
+  ];
+
+  propagatedBuildInputs = [
+    glm
+    spdlog
+    fmt
+    nlohmann_json
   ];
   
   cmakeFlags = [ "-DCMAKE_INSTALL_PREFIX=$(out)" ];
