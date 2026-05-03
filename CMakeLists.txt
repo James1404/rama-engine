@@ -41,7 +41,8 @@ set(OBJECT_LAYER_BITS 16)
 
 include(FindLua)
 
-target_link_libraries(rama PUBLIC
+target_link_libraries(rama
+PUBLIC
   SDL3::SDL3
   spdlog::spdlog
   glm::glm
@@ -52,7 +53,7 @@ target_link_libraries(rama PUBLIC
   ${LUA_LIBRARIES}
   Freetype::Freetype
 
-  PRIVATE
+PRIVATE
   sol2
   TinyGLTF
 )
