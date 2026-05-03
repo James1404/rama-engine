@@ -37,20 +37,20 @@ clangStdenv.mkDerivation (finalAttrs: rec {
 
   nativeBuildInputs = [ cmake pkg-config ];
   buildInputs = [
-    sdl3
     assimp
     freetype
     lua
-    sol2
     tinygltf
-    jolt-physics
   ];
 
   propagatedBuildInputs = [
+    sdl3
     glm
     spdlog
     fmt
     nlohmann_json
+    sol2
+    jolt-physics
   ];
   
   cmakeFlags = [ "-DCMAKE_INSTALL_PREFIX=$(out)" ];
