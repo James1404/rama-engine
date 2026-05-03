@@ -7,9 +7,6 @@
 [submodule "deps/json"]
 	path = deps/json
 	url = git@github.com:nlohmann/json.git
-[submodule "deps/JoltPhysics"]
-	path = deps/JoltPhysics
-	url = git@github.com:jrouwe/JoltPhysics.git
 [submodule "deps/sol2"]
 	path = deps/sol2
 	url = git@github.com:ThePhD/sol2.git
