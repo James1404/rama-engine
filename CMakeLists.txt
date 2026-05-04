@@ -48,7 +48,7 @@ PUBLIC
   glm::glm
   nlohmann_json::nlohmann_json
   fmt::fmt
-  Jolt
+  Jolt::Jolt
   assimp
   ${LUA_LIBRARIES}
   Freetype::Freetype
