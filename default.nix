@@ -1,6 +1,6 @@
 {
   lib,
-  clangStdenv,
+  stdenv,
   fetchFromGitHub,
   cmake,
   pkg-config,
@@ -29,7 +29,7 @@ let
   jolt-physics = callPackage ./jolt.nix {};
 in
 
-clangStdenv.mkDerivation (finalAttrs: rec {
+stdenv.mkDerivation (finalAttrs: rec {
   pname = "rama-engine";
   version = "0.01";
 
@@ -57,6 +57,12 @@ clangStdenv.mkDerivation (finalAttrs: rec {
     # Copy imgui into your source tree
     cp -r ${imgui} ./deps/imgui
     chmod -R +w ./deps/imgui
+  '';
+
+  installPhase = ''
+    runHook preInstal l
+    cmake --install . --prefix $out --verbose
+    runHook postInstall
   '';
 
   meta = with lib; {
