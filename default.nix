@@ -36,6 +36,7 @@ clangStdenv.mkDerivation (finalAttrs: rec {
   src = ./.;
 
   nativeBuildInputs = [ cmake pkg-config ];
+  buildInputs = [ jolt-physics ];
   propagatedBuildInputs = [
     assimp
     freetype
@@ -56,12 +57,6 @@ clangStdenv.mkDerivation (finalAttrs: rec {
     # Copy imgui into your source tree
     cp -r ${imgui} ./deps/imgui
     chmod -R +w ./deps/imgui
-  '';
-
-  installPhase = ''
-    runHook preInstal l
-    cmake --install . --prefix $out --verbose
-    runHook postInstall
   '';
 
   meta = with lib; {
