@@ -21,6 +21,13 @@ stdenv.mkDerivation (finalAttrs: {
   buildInputs = [];
 
   cmakeDir = "../Build";
+
+  cmakeFlags = [
+    "-DCMAKE_BUILD_TYPE=Release"
+    "-DDEBUG_RENDERER_IN_DEBUG_AND_RELEASE=OFF"
+    "-DPROFILER_IN_DEBUG_AND_RELEASE=OFF"
+    "-DUSE_ASSERTS=OFF"
+  ];
   
   meta = with lib; {
     homepage = "https://github.com/jrouwe/JoltPhysics";
